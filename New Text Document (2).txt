@@ -1,0 +1,62 @@
+## Training
+
+Call **train.py** with `train` method with training and tests datasets.
+Call **trainer.py** with `train` method with training and tests datasets.
+
+```
+python plant_disease_classification/train.py --train plant_disease_classification/datasets/train --val plant_disease_classification/datasets/test --num_classes 38
+python plant_disease_classification/trainer.py --train plant_disease_classification/datasets/train --val plant_disease_classification/datasets/test --num_classes 38
+```
+
+<p align="center">
+@@ -24,12 +24,12 @@ python plant_disease_classification/train.py --train plant_disease_classificatio
+
+## Model
+
+After successfull training, model is created under **plant_disease_classification/model/** folder.
+After successfull training, model is created under **plant_disease_classification/ckpts/** folder.
+
+## Prediction
+
+Call `predict` function of **predict.py** with selected image file path. Below there is sample command for CLI for default image path.
+Call `classify` function of **classifier.py** with selected image file path. Below there is sample command for CLI for default image path.
+
+```
+python plant_disease_classification/predict.py --predict
+python plant_disease_classification/classifier.py --predict
+```
+ 13  plant_disease_classification/classifier.py 
+@@ -6,14 +6,19 @@
+import numpy as np
+import tensorflow as tf
+
+# Just disables the warning, doesn't enable AVX/FMA
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+image_size = 128
+num_channels = 3
+
+graph_path = os.path.join('plant_disease_classification/model/', 'plants-disease-model.meta')
+graph_path = os.path.join('plant_disease_classification/ckpts/', 'plants-disease-model.meta')
+checkpoint_path = os.path.join('plant_disease_classification/ckpts/', 'plants-disease-model')
+
+session = tf.Session()
+saver = tf.train.import_meta_graph(graph_path)
+saver.restore(session, tf.train.latest_checkpoint('plant_disease_classification/model/'))
+session = tf.compat.v1.Session()
+saver = tf.compat.v1.train.import_meta_graph(graph_path)
+saver.restore(session, tf.train.latest_checkpoint('plant_disease_classification/ckpts/'))
+# saver.restore(session, checkpoint_path)
+
+def classify(file_path='plant_disease_classification/datasets/test/0a02f9b47e8082558fa257092f0cedee.jpg'):
+    print(file_path)
+ 2  plant_disease_classification/trainer.py 
+@@ -165,7 +165,7 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
+
+total_iterations = 0
+
+save_path = 'plant_disease_classification/model'
+save_path = 'plant_disease_classification/ckpts'
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
